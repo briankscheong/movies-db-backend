@@ -8,12 +8,11 @@ const cors = require('cors');
 // Create application/x-www-form-urlencoded parser
 // const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.use(cors({origin: process.env.FRONTEND_URL}));
-console.log(process.env.FRONTEND_URL);
+app.use(cors({origin: [process.env.FRONTEND_URL, process.env.GITHUB_FRONTEND_URL]}));
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
-res.send('Hello World!')
+    res.send('Hello World!')
 })
 
 app.get('/movies/trending', async (req, res) => {

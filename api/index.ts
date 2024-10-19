@@ -8,7 +8,8 @@ const cors = require('cors');
 // Create application/x-www-form-urlencoded parser
 // const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.use(cors({origin: process.env.FRONTEND_URL || "http://localhost:3002"}));
+app.use(cors({origin: process.env.FRONTEND_URL}));
+console.log(process.env.FRONTEND_URL);
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {

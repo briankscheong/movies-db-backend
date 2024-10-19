@@ -1,15 +1,17 @@
 {
   "name": "backend-app",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "index.ts",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "node api/index.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.4.1",
     "express": "^4.21.0",
     "node-fetch": "^2.7.0"
   },

@@ -3,6 +3,10 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require('cors');
+// const bodyParser = require('body-parser');
+
+// Create application/x-www-form-urlencoded parser
+// const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(cors({origin: [process.env.FRONTEND_URL, process.env.GITHUB_FRONTEND_URL]}));
 app.use(express.static('public'));

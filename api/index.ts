@@ -3,10 +3,6 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require('cors');
-// const bodyParser = require('body-parser');
-
-// Create application/x-www-form-urlencoded parser
-// const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(cors({origin: [process.env.FRONTEND_URL, process.env.GITHUB_FRONTEND_URL]}));
 app.use(express.static('public'));
@@ -20,8 +16,8 @@ app.get('/movies/trending', async (req, res) => {
     const options = {
         method: 'GET',
         headers: {
-        accept: 'application/json',
-        Authorization: `Bearer ${process.env.BEARER_TOKEN}`
+            accept: 'application/json',
+            Authorization: `Bearer ${process.env.BEARER_TOKEN}`
         }
     };
     
@@ -35,7 +31,8 @@ app.get('/movies/trending', async (req, res) => {
 })
 
 app.get('/movies/popular', async (req, res) => {
-    const url = 'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1';
+    const page = parseInt(req.query.page) || 1;
+    const url = `https://api.themoviedb.org/3/movie/popular?language=en-US&page=${page}`;
     const options = {
         method: 'GET',
         headers: {
@@ -54,7 +51,8 @@ app.get('/movies/popular', async (req, res) => {
 })
 
 app.get('/movies/top-rated', async (req, res) => {
-    const url = 'https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=1';
+    const page = parseInt(req.query.page) || 1;
+    const url = `https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=${page}`;
     const options = {
         method: 'GET',
         headers: {
@@ -73,7 +71,8 @@ app.get('/movies/top-rated', async (req, res) => {
 })
 
 app.get('/movies/upcoming', async (req, res) => {
-    const url = 'https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=1';
+    const page = parseInt(req.query.page) || 1;
+    const url = `https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=${page}`;
     const options = {
         method: 'GET',
         headers: {
@@ -114,10 +113,11 @@ app.get('/movie/:id/video', async(req, res) => {
 app.get('/movie/:id/streaming-options', async (req, res) => {
     const id = req.params.id;
     const url = `https://streaming-availability.p.rapidapi.com/shows/movie/${id}?series_granularity=show&output_language=en`;
+    const rapid_api_key = process.env.RAPID_API_KEY || "";
     const options = {
         method: 'GET',
         headers: {
-            'x-rapidapi-key': process.env.RAPID_API_KEY as string,
+            'x-rapidapi-key': rapid_api_key,
             'x-rapidapi-host': 'streaming-availability.p.rapidapi.com'
         }
     };

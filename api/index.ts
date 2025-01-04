@@ -59,7 +59,7 @@ app.get('/movies/trending', async (req, res) => {
     await fetch(url, options)
         .then(response => response.json())
         .then(json => {
-            // console.log(json)
+            console.log('Trending movies request succeeded. Sending JSON response back to front end server.')
             res.json(json)
         })
         .catch(err => console.error('error:' + err));
@@ -79,7 +79,7 @@ app.get('/movies/popular', async (req, res) => {
     await fetch(url, options)
         .then(response => response.json())
         .then(json => {
-            // console.log(json)
+            console.log('Popular movies request succeeded. Sending JSON response back to front end server.')
             res.json(json)
         })
         .catch(err => console.error('error:' + err));
@@ -99,7 +99,7 @@ app.get('/movies/top-rated', async (req, res) => {
     await fetch(url, options)
         .then(response => response.json())
         .then(json => {
-            // console.log(json)
+            console.log('Top Rated movies request succeeded. Sending JSON response back to front end server.')
             res.json(json)
         })
         .catch(err => console.error('error:' + err));
@@ -119,7 +119,7 @@ app.get('/movies/upcoming', async (req, res) => {
     await fetch(url, options)
         .then(response => response.json())
         .then(json => {
-            // console.log(json)
+            console.log('Upcoming movies request succeeded. Sending JSON response back to front end server.')
             res.json(json)
         })
         .catch(err => console.error('error:' + err));
@@ -139,7 +139,7 @@ app.get('/movie/:id/video', async (req, res) => {
     await fetch(url, options)
         .then(response => response.json())
         .then((json) => {
-            // console.log(json)
+            console.log('Movie video fetched successfully. Sending JSON response back to front end server.')
             res.json(json)
         })
         .catch((err) => console.error("Failed to fetch movie video: ", err));
@@ -175,7 +175,7 @@ app.get('/movie/:id/streaming-options', async (req, res) => {
                     // add streaming options result to cache
                     await req.redis.set(cacheId, JSON.stringify(json))
                     await req.redis.expire(cacheId, 86400)
-                    console.log("movie " + id + " info cached with key " + cacheId + ". Cache expires in 24 hrs.")
+                    console.log("Movie " + id + " info cached with key " + cacheId + ". Cache expires in 24 hrs.")
                     res.json(json)
                 })
                 .catch(err => console.error('error: ' + err));

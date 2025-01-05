@@ -151,9 +151,9 @@ app.get('/movie/:id/streaming-options', async (req, res) => {
 
     try {
         // check if streaming options for a movie is in cache
-        const result = await req.redis.get(cacheId);
-        const json_result = JSON.parse(result);
-        if (json_result !== null) {
+        const result = await req.redis.json.get(cacheId);
+
+        if (result !== null) {
             console.log("cache hit " + cacheId)
             res.json(result)
         }
@@ -173,7 +173,7 @@ app.get('/movie/:id/streaming-options', async (req, res) => {
                 .then(response => response.json())
                 .then(async json => {
                     // add streaming options result to cache
-                    await req.redis.set(cacheId, JSON.stringify(json))
+                    await req.redis.json.set(cacheId, "$", json)
                     await req.redis.expire(cacheId, 86400)
                     console.log("Movie " + id + " info cached with key " + cacheId + ". Cache expires in 24 hrs.")
                     res.json(json)

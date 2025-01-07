@@ -1,10 +1,18 @@
 require('dotenv').config();
 
-const express = require('express');
+import express from 'express';
+import cors from 'cors';
+import { createClient } from 'redis';
+import moviesRouter from './routes/movies.ts';
 const app = express();
-const cors = require('cors');
-const { createClient } = require('redis');
-const moviesRouter = require('./routes/movies.ts');
+
+declare global {
+    namespace Express {
+        interface Request {
+            redis?: any;  // Optional property 'redis' attached to the request object
+        }
+    }
+}
 
 // const bodyParser = require('body-parser');
 // Create application/x-www-form-urlencoded parser
@@ -16,7 +24,7 @@ const client = createClient({
     password: process.env.REDIS_PASSWORD,
     socket: {
         host: process.env.REDIS_SOCKET_HOST,
-        port: process.env.REDIS_SOCKET_PORT,
+        port: Number(process.env.REDIS_SOCKET_PORT),
         reconnectStrategy: function(retries) {
             if (retries > 20) {
                 console.log("Too many attempts to reconnect. Redis connection was terminated");

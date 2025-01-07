@@ -1,9 +1,10 @@
-require('dotenv').config();
-
+import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { createClient } from 'redis';
 import moviesRouter from '../routes/movies.ts';
+
+dotenv.config();
 const app = express();
 
 declare global {

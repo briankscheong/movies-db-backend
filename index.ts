@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { createClient } from 'redis';
-import moviesRouter from '../routes/movies.ts';
+import moviesRouter from './routes/movies.ts';
 
 dotenv.config();
 const app = express();
@@ -14,6 +14,9 @@ declare global {
         }
     }
 }
+
+console.log(process.env.FRONTEND_URL)
+console.log(process.env.GITHUB_FRONTEND_URL)
 
 // const bodyParser = require('body-parser');
 // Create application/x-www-form-urlencoded parser

@@ -4,7 +4,7 @@
   "main": "index.ts",
   "scripts": {
     "test": "test",
-    "start": "ts-node index.ts"
+    "start": "ts-node api/index.ts"
   },
   "author": "",
   "license": "ISC",

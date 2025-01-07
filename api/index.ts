@@ -4,7 +4,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const { createClient } = require('redis');
-const moviesRouter = require('./movies');
+const moviesRouter = require('./movies.ts');
 
 // const bodyParser = require('body-parser');
 // Create application/x-www-form-urlencoded parser

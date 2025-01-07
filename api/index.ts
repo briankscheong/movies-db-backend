@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { createClient } from 'redis';
-import moviesRouter from './movies.ts';
+import movieRouter from './routes/movies.ts';
 
 dotenv.config();
 const app = express();
@@ -14,9 +14,6 @@ declare global {
         }
     }
 }
-
-console.log(process.env.FRONTEND_URL)
-console.log(process.env.GITHUB_FRONTEND_URL)
 
 // const bodyParser = require('body-parser');
 // Create application/x-www-form-urlencoded parser
@@ -55,7 +52,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/movies', moviesRouter);
+app.use('/movies', movieRouter);
 
 app.listen(process.env.PORT || 3001, () => {
     console.log(`App listening on port ${process.env.PORT || 3001}`)

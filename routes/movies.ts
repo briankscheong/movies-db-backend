@@ -80,7 +80,7 @@ router.get('/upcoming', async (req, res) => {
         .catch(err => console.error('error:' + err));
 })
 
-router.get('/movie/:id/video', async (req, res) => {
+router.get('/:id/video', async (req, res) => {
     const id = req.params.id;
     const url = `https://api.themoviedb.org/3/movie/${id}/videos?language=en-US`;
     const options = {
@@ -100,7 +100,7 @@ router.get('/movie/:id/video', async (req, res) => {
         .catch((err) => console.error("Failed to fetch movie video: ", err));
 })
 
-router.get('/movie/:id/streaming-options', async (req, res) => {
+router.get('/:id/streaming-options', async (req, res) => {
     const id = req.params.id;
     const cacheId = `movie-info:${id}`;
 

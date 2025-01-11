@@ -4,7 +4,7 @@ import cors from 'cors';
 import { createClient } from 'redis';
 // import bcrypt from 'bcrypt';
 // import jwt from 'jsonwebtoken';
-import movieRouterTest from './routes/movies.ts'; 
+import movieRouterTest from './routes/movies'; 
 
 dotenv.config();
 const app = express();

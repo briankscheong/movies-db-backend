@@ -165,7 +165,7 @@ declare global {
 // const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 // set up redis client
-const client = createClient({
+const redisClient = createClient({
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
     socket: {
@@ -182,9 +182,9 @@ const client = createClient({
     }
 });
 
-client.on('error', err => console.log('Redis Client Error', err));
+redisClient.on('error', err => console.log('Redis Client Error', err));
 
-client.connect()
+redisClient.connect()
     .then(() => console.log('Connected to Redis'))
     .catch(err => console.error('Error connecting to Redis:', err));
 
@@ -193,7 +193,7 @@ app.use(express.static('public'));
 
 // Use middleware to attach the Redis client to the request object
 app.use((req, res, next) => {
-    req.redis = client;
+    req.redis = redisClient;
     next();
 });
 

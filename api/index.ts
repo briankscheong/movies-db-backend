@@ -2,6 +2,8 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { createClient } from 'redis';
+// import bcrypt from 'bcrypt';
+// import jwt from 'jsonwebtoken';
 // import movieRouter from './movies.ts';
 
 dotenv.config();

@@ -10,10 +10,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.21.0",
+    "fs": "^0.0.1-security",
     "json": "^11.0.0",
+    "jsonwebtoken": "^9.0.2",
     "node-fetch": "^2.7.0",
     "redis": "^4.7.0",
     "ts-node": "^10.9.2"

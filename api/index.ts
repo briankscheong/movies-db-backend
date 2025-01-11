@@ -197,7 +197,7 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use('/movies', movieRouter);
+app.use('/movies', movieRouterTest);
 
 app.listen(process.env.PORT || 3001, () => {
     console.log(`App listening on port ${process.env.PORT || 3001}`)

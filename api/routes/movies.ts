@@ -1,7 +1,7 @@
 import express from 'express';
-const movieRouter = express.Router();
+const movieRouterTest = express.Router();
 
-movieRouter.get('/trending', async (req, res) => {
+movieRouterTest.get('/trending', async (req, res) => {
     const url = 'https://api.themoviedb.org/3/trending/movie/day?language=en-US';
     const options = {
         method: 'GET',
@@ -20,7 +20,7 @@ movieRouter.get('/trending', async (req, res) => {
         .catch(err => console.error('error:' + err));
 })
 
-movieRouter.get('/popular', async (req, res) => {
+movieRouterTest.get('/popular', async (req, res) => {
     const page = parseInt(String(req.query.page)) || 1;
     const url = `https://api.themoviedb.org/3/movie/popular?language=en-US&page=${page}`;
     const options = {
@@ -40,7 +40,7 @@ movieRouter.get('/popular', async (req, res) => {
         .catch(err => console.error('error:' + err));
 })
 
-movieRouter.get('/top-rated', async (req, res) => {
+movieRouterTest.get('/top-rated', async (req, res) => {
     const page = parseInt(String(req.query.page)) || 1;
     const url = `https://api.themoviedb.org/3/movie/top_rated?language=en-US&page=${page}`;
     const options = {
@@ -60,7 +60,7 @@ movieRouter.get('/top-rated', async (req, res) => {
         .catch(err => console.error('error:' + err));
 })
 
-movieRouter.get('/upcoming', async (req, res) => {
+movieRouterTest.get('/upcoming', async (req, res) => {
     const page = parseInt(String(req.query.page)) || 1;
     const url = `https://api.themoviedb.org/3/movie/upcoming?language=en-US&page=${page}`;
     const options = {
@@ -80,7 +80,7 @@ movieRouter.get('/upcoming', async (req, res) => {
         .catch(err => console.error('error:' + err));
 })
 
-movieRouter.get('/:id/video', async (req, res) => {
+movieRouterTest.get('/:id/video', async (req, res) => {
     const id = req.params.id;
     const url = `https://api.themoviedb.org/3/movie/${id}/videos?language=en-US`;
     const options = {
@@ -100,7 +100,7 @@ movieRouter.get('/:id/video', async (req, res) => {
         .catch((err) => console.error("Failed to fetch movie video: ", err));
 })
 
-movieRouter.get('/:id/streaming-options', async (req, res) => {
+movieRouterTest.get('/:id/streaming-options', async (req, res) => {
     const id = req.params.id;
     const cacheId = `movie-info:${id}`;
 
@@ -142,8 +142,4 @@ movieRouter.get('/:id/streaming-options', async (req, res) => {
 
 })
 
-movieRouter.get('/:id', (req, res) => {
-  res.send(`User ${req.params.id}`);
-});
-
-export default movieRouter; 
+export default movieRouterTest; 

@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import { createClient as createRedisClient } from 'redis';
-import movieRouter from './routers/movies'; 
+import movieRouter from './routers/movies.ts'; 
 import { createClient as createDatabaseClient } from '@supabase/supabase-js'
 
 dotenv.config();

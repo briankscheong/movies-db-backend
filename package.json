@@ -2,16 +2,19 @@
   "name": "backend-app",
   "version": "1.0.0",
   "main": "index.ts",
+  "type": "module",
   "scripts": {
     "test": "test",
-    "start": "ts-node index.ts"
+    "start": "node --no-warnings=ExperimentalWarning --loader ts-node/esm api/index.ts"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@supabase/supabase-js": "^2.47.12",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "dotenv": "^16.4.1",
     "express": "^4.21.0",
     "fs": "^0.0.1-security",

@@ -2,7 +2,6 @@
   "name": "backend-app",
   "version": "1.0.0",
   "main": "index.ts",
-  "type": "module",
   "scripts": {
     "test": "test",
     "start": "node --no-warnings=ExperimentalWarning --loader ts-node/esm api/index.ts"

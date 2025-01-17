@@ -12,7 +12,7 @@ userRouter.use((req, res, next) => {
     // if refresh token does not exist, user is not signed in
     if (!refreshToken) {
         console.log("User not signed in. Please log in or sign up for an account");
-        res.sendStatus(403);
+        res.sendStatus(401);
         return;
     }
     else {
@@ -66,7 +66,7 @@ userRouter.get('/favorites', async (req, res) => {
         })
         return;
     }
-    
+
     for (const entry of data) {
         favorites.push(entry.movie_id || "");
     }

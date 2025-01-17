@@ -30,6 +30,25 @@ export const createTables = async (supabase) => {
     );
   `;
 
+    const triggerFunction = `
+    create or replace function delete_expired_auth_entries()
+    returns trigger language plpgsql as $$
+    begin
+    -- Check if the 'expires_at' field is in the past
+    if now() >= NEW.expires_at then
+        delete from auth where user_id = NEW.user_id; -- Delete expired row
+    end if;
+
+    -- Return the unchanged row (not modifying it)
+    return NEW;
+    end;
+    $$;
+
+    create trigger check_and_delete_expired_auth
+    before insert or update on public.auth
+    for each row execute function delete_expired_auth_entries();
+    `;
+
     // Run the queries
     const { data: userData, error: userError } = await supabase
         .rpc('execute_sql', { sql: createUserTableQuery });

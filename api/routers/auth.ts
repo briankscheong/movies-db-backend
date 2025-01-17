@@ -2,6 +2,7 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 const authRouter = express.Router();
 
@@ -10,13 +11,14 @@ export function generateAccessToken(username: String) {
 }
 
 export function generateRefreshToken(username: String) {
-    return jwt.sign({name: username}, process.env.JWT_REFRESH_KEY)
+    return jwt.sign({name: username}, process.env.JWT_REFRESH_KEY, { expiresIn: '7d'})
 }
 
 // sign up a new account
 authRouter.post('/signup', async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
+    const uuid = crypto.randomUUID();
     
     if (!username || !password) {
         res.status(401).json({
@@ -29,41 +31,62 @@ authRouter.post('/signup', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, Number(process.env.BCRYPT_SALT_ROUNDS));
     
     // retrieve all username and password from db
-    const { data, err } = await req.supabase
+    const { data_getusers, error_getusers } = await req.supabase
         .from('users')
         .select()
+
     
     // check if username and password entry exists in db
-    for (const user of data) {
-        if (username === user.username) {
-            if (hashedPassword === user.password) {
-                res.status(400).json({
-                    error: 'You have an existing account. Please log in instead.'
-                });
-                return;
+    if (data_getusers !== undefined) {
+        for (const user of data_getusers) {
+            if (username === user.username) {
+                if (hashedPassword === user.password) {
+                    res.status(400).json({
+                        error: 'You have an existing account. Please log in instead.'
+                    });
+                    return;
+                }
+                else {
+                    res.status(400).json({
+                        error: `Username ${username} already exists. Please use a different username`
+                    });
+                    return;
+                }
             }
-            else {
-                res.status(400).json({
-                    error: `Username ${username} already exists. Please use a different username`
-                });
-                return;
-            }
-        }
-    };
+        };
+    }
 
     // generate a refresh token for user
+    const now = new Date();
+    const timestampNow = now.toISOString();
+    const timestampExpirationDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
     const refreshToken = generateRefreshToken(username);
 
     // generate an access token for user
     const accessToken = generateAccessToken(username);
 
-    const { error } = await req.supabase
+    const { data_users, error_users } = await req.supabase
         .from('users')
-        .insert({ username: username, password: hashedPassword, refresh_token: refreshToken })
+        .insert({ id: uuid, username: username, password: hashedPassword })
+        .select()
 
-    if (error) {
+    if (error_users) {
         res.status(400).json({
-            error: error
+            error: error_users
+        });
+        return;
+    }
+
+    const { data: user_auth, error_auth } = await req.supabase
+        .from('user_auth')
+        .insert([{ uuid, refresh_token: refreshToken, created_at: timestampNow, expires_at: timestampExpirationDate }])
+        .select()
+
+    console.log(user_auth);
+
+    if (error_auth) {
+        res.status(400).json({
+            error: error_auth
         });
         return;
     }
@@ -89,13 +112,13 @@ authRouter.post('/login', async (req, res) => {
     }
     
     // retrieve all username and password from db
-    const { data, err } = await req.supabase
+    const { data: user, err } = await req.supabase
         .from('users')
         .select()
         .eq('username', username)
     
     // check if user exists 
-    if (data.length != 1) {
+    if (user.length != 1) {
         res.status(400).json({
             error: `The account with username ${username} does not exist. Please sign up for a new account.`
         });
@@ -103,15 +126,57 @@ authRouter.post('/login', async (req, res) => {
     }
 
     // check if user password is correct
-    if (!bcrypt.compareSync(password, data[0].password)) {
+    if (!bcrypt.compareSync(password, user[0].password)) {
         res.status(403).json({
             error: "The password you provided is incorrect. Please try again."
         })
         return;
     }
 
+    const { data: user_auth, error_auth } = await req.supabase
+        .from('user_auth')
+        .select()
+        .eq('user_id', user[0].id)
+    
+    let activeRefreshToken = "";
+
+    if (user_auth.length >= 1) {
+        for (const auth of user_auth) {
+            console.log(auth.expires_at);
+            if (new Date().toISOString() > auth.expires_at) {
+                const { data_delete, error_delete } = await req.supabase
+                    .from('user_auth')
+                    .delete()
+                    .or(`expires_at.eq.${auth.expires_at},and(user_id.eq.${auth.id})`)
+                    .select()
+                if (error_delete) {
+                    res.status(400).json({
+                        error: error_delete
+                    });
+                    return;
+                }
+                else {
+                    console.log(`successfully deleted expired refresh token for user ${auth.id}`);
+                }
+            }
+            else {
+                activeRefreshToken = auth.refresh_token;
+                console.log(`found an active refresh token for user ${auth.id}`)
+            }
+        }
+    }
+
+    if (activeRefreshToken !== "") {
+        const accessToken = generateAccessToken(username);
+        res.status(200).json({
+            access_token: accessToken,
+            refresh_token: activeRefreshToken,
+        });
+        return;
+    }
+
     // generate a refresh token for user
-    const refreshToken = data[0].refresh_token;
+    const refreshToken = generateRefreshToken(username);
 
     // generate an access token for user
     const accessToken = generateAccessToken(username);
@@ -123,6 +188,27 @@ authRouter.post('/login', async (req, res) => {
     return;
 });
 
+authRouter.delete('/logout', async (req, res) => {
+    const refreshToken = req.body.token;
+    const { error } = await req.supabase
+        .from('user_auth')
+        .delete()
+        .eq('refresh_token', refreshToken)
+
+    if (error) {
+        res.status(400).json({
+            error: error
+        });
+        return;
+    }
+    else {
+        res.status(200).json({
+            message: "successfully logged out"
+        });
+        return;
+    }
+})
+
 // generate new access token with refresh token
 authRouter.post('/token', async (req, res) => {
     const refreshToken = req.body.token;
@@ -131,6 +217,26 @@ authRouter.post('/token', async (req, res) => {
             error: "User not signed in. Please log in or sign up for an account."
         })
     }
+
+    const { data, error } = await req.supabase
+        .from('user_auth')
+        .select()
+        .eq('refresh_token', refreshToken)
+
+    if (error) {
+        res.status(400).json({
+            error: error
+        });
+        return;
+    }
+
+    if (data.length == 0) {
+        res.status(403).json({
+            error: "refresh token not found. Access forbidden."
+        })
+        return;
+    }
+
     jwt.verify(refreshToken, process.env.JWT_REFRESH_KEY, (err, user) => {
         if (err) {
             res.status(403).json({

@@ -158,7 +158,6 @@ authRouter.post('/login', async (req, res) => {
 
     if (getUserAuthData.length >= 1) {
         for (const auth of getUserAuthData) {
-            console.log(auth.expires_at);
             if (new Date().toISOString() > auth.expires_at) {
                 const { error: deleteUserAuthError } = await req.supabase
                     .from('user_auth')
@@ -272,14 +271,15 @@ authRouter.get('/test', (req, res) => {
     const refreshToken =  req.body.token;
 
     if (!accessToken && !refreshToken) {
-        console.log("Not signed in");
-        res.sendStatus(403);
+        console.log("User not signed in");
+        res.status(403).json({
+            error: 'User not signed in'
+        });
         return;
     }
 
     jwt.verify(accessToken, process.env.JWT_PUBLIC_KEY, { algorithm: 'RS256' }, (err, user) => {
         if (err) {
-            console.log(err);
             res.status(401).json({
                 error: 'Access token expired. Please use refresh token to generate a new one.'
             })

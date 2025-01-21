@@ -31,14 +31,20 @@ authRouter.post('/signup', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(password, Number(process.env.BCRYPT_SALT_ROUNDS));
     
     // retrieve all username and password from db
-    const { data_getusers, error_getusers } = await req.supabase
+    const { data: getUserData, error: getUserError } = await req.supabase
         .from('users')
         .select()
 
+    if (getUserError) {
+        res.status(400).json({
+            error: getUserError
+        });
+        return;
+    }
     
     // check if username and password entry exists in db
-    if (data_getusers !== undefined) {
-        for (const user of data_getusers) {
+    if (getUserData !== undefined) {
+        for (const user of getUserData) {
             if (username === user.username) {
                 if (hashedPassword === user.password) {
                     res.status(400).json({
@@ -65,28 +71,24 @@ authRouter.post('/signup', async (req, res) => {
     // generate an access token for user
     const accessToken = generateAccessToken(username);
 
-    const { data_users, error_users } = await req.supabase
+    const { error: insertUserError } = await req.supabase
         .from('users')
         .insert({ id: uuid, username: username, password: hashedPassword })
-        .select()
 
-    if (error_users) {
+    if (insertUserError) {
         res.status(400).json({
-            error: error_users
+            error: insertUserError
         });
         return;
     }
 
-    const { data: user_auth, error_auth } = await req.supabase
+    const { error: authUserError } = await req.supabase
         .from('user_auth')
-        .insert([{ uuid, refresh_token: refreshToken, created_at: timestampNow, expires_at: timestampExpirationDate }])
-        .select()
+        .insert([{ user_id: uuid, refresh_token: refreshToken, created_at: timestampNow, expires_at: timestampExpirationDate }])
 
-    console.log(user_auth);
-
-    if (error_auth) {
+    if (authUserError) {
         res.status(400).json({
-            error: error_auth
+            error: authUserError
         });
         return;
     }
@@ -112,13 +114,20 @@ authRouter.post('/login', async (req, res) => {
     }
     
     // retrieve all username and password from db
-    const { data: user, err } = await req.supabase
+    const { data: getUserData, error: getUserError } = await req.supabase
         .from('users')
         .select()
         .eq('username', username)
+
+    if (getUserError) {
+        res.status(400).json({
+            error: getUserError
+        });
+        return;
+    }
     
     // check if user exists 
-    if (user.length != 1) {
+    if (getUserData.length != 1) {
         res.status(400).json({
             error: `The account with username ${username} does not exist. Please sign up for a new account.`
         });
@@ -126,32 +135,38 @@ authRouter.post('/login', async (req, res) => {
     }
 
     // check if user password is correct
-    if (!bcrypt.compareSync(password, user[0].password)) {
+    if (!bcrypt.compareSync(password, getUserData[0].password)) {
         res.status(403).json({
             error: "The password you provided is incorrect. Please try again."
         })
         return;
     }
 
-    const { data: user_auth, error_auth } = await req.supabase
+    const { data: getUserAuthData, error: getUserAuthError } = await req.supabase
         .from('user_auth')
         .select()
-        .eq('user_id', user[0].id)
+        .eq('user_id', getUserData[0].id)
+
+    if (getUserAuthError) {
+        res.status(400).json({
+            error: getUserAuthError
+        });
+        return;
+    }
     
     let activeRefreshToken = "";
 
-    if (user_auth.length >= 1) {
-        for (const auth of user_auth) {
+    if (getUserAuthData.length >= 1) {
+        for (const auth of getUserAuthData) {
             console.log(auth.expires_at);
             if (new Date().toISOString() > auth.expires_at) {
-                const { data_delete, error_delete } = await req.supabase
+                const { error: deleteUserAuthError } = await req.supabase
                     .from('user_auth')
                     .delete()
                     .or(`expires_at.eq.${auth.expires_at},and(user_id.eq.${auth.id})`)
-                    .select()
-                if (error_delete) {
+                if (deleteUserAuthError) {
                     res.status(400).json({
-                        error: error_delete
+                        error: deleteUserAuthError
                     });
                     return;
                 }

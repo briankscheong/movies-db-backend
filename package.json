@@ -22,7 +22,8 @@
     "jsonwebtoken": "^9.0.2",
     "node-fetch": "^2.7.0",
     "redis": "^4.7.0",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@types/express": "^5.0.0",

@@ -162,7 +162,7 @@ authRouter.post('/login', async (req, res) => {
                 const { error: deleteUserAuthError } = await req.supabase
                     .from('user_auth')
                     .delete()
-                    .or(`expires_at.eq.${auth.expires_at},and(user_id.eq.${auth.id})`)
+                    .or(`expires_at.eq.${auth.expires_at},and(user_id.eq.${auth.user_id})`)
                 if (deleteUserAuthError) {
                     res.status(400).json({
                         error: deleteUserAuthError

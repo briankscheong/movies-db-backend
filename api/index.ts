@@ -1,9 +1,11 @@
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import cors from 'cors';
-import { createClient as createRedisClient } from 'redis';
 import movieRouter from './routers/movies'; 
-import { createClient as createDatabaseClient } from '@supabase/supabase-js'
+import authRouter from './routers/auth';
+import userRouter from './routers/user';
+import { createClient as createRedisClient } from 'redis';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 dotenv.config();
 const app = express();
@@ -19,9 +21,9 @@ declare global {
 }
 
 // set up postgres db client
-const supabaseClient = createDatabaseClient(
-    process.env.SUPABASE_URL || "", 
-    process.env.SUPABASE_KEY || ""
+const supabaseClient = createSupabaseClient(
+    process.env.SUPABASE_URL!, 
+    process.env.SUPABASE_KEY!,
 );
 
 // set up redis client
@@ -51,7 +53,7 @@ redisClient.connect()
 app.use(cors({ origin: [process.env.FRONTEND_URL, process.env.GITHUB_FRONTEND_URL] }));
 app.use(express.static('public'));
 
-// Use middleware to attach the Redis client to the request object
+// Use middleware to attach the Redis and Supabase client to the request object
 app.use((req, res, next) => {
     req.redis = redisClient;
     req.supabase = supabaseClient;
@@ -59,6 +61,8 @@ app.use((req, res, next) => {
 });
 
 app.use('/movies', movieRouter);
+app.use('/auth', authRouter);
+app.use('/user', userRouter);
 
 app.listen(process.env.PORT || 3001, () => {
     console.log(`App listening on port ${process.env.PORT || 3001}`)
